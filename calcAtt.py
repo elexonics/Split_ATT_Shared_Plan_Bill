@@ -67,7 +67,7 @@ class BillDetailer:
 						'512 954 7686':'H',
 						'512 954 7693':'I',
 						'Owner':'512 923 2219'}
-		self.totalMember=len(self.phoneBook)
+		self.totalMember=len(self.phoneBook)-1
 		self.extraDataTotal=0
 
 	def findBillAndUsageForEach(self):
@@ -86,20 +86,24 @@ class BillDetailer:
 
 		#find usage detail for each
 		startPoint=0
+		self.extraDataTotal=0
 		for eachNumber in self.dataBase:
 			startNumber=self.dataUsage.find(eachNumber, startPoint)
 			endPoint=self.dataUsage.find("\n", startNumber)
 			data=self.dataUsage[startNumber+13:endPoint]
 			data=re.findall(r"\d+", data)
 			data=int("".join(data))
-			self.extraDataTotal
+			if data>1024:
+				self.extraDataTotal+=data
 			self.dataBase[eachNumber].append(data)
 
 	def splitBill(self):
 		dataExtraExpense=self.dataBase[self.phoneBook['Owner']][0]-104.54
 		for eachNumber in self.dataBase:
 			if self.extraDataTotal > 0:
-				self.dataBase[eachNumber].append(dataExtraExpense*(self.dataBase[eachNumber][1]-1000)/float(self.extraDataTotal))
+				extraData=self.dataBase[eachNumber][1]-1024
+				if extraData<0: extraData=0
+				self.dataBase[eachNumber].append(dataExtraExpense*extraData/float(self.extraDataTotal))
 			else:
 				self.dataBase[eachNumber].append(0)
 			if eachNumber == self.phoneBook['Owner']:
