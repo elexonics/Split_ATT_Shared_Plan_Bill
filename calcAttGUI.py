@@ -22,6 +22,7 @@
 
 
 from tkinter import *
+from tkinter import filedialog
 from calcAtt import BillDetailer
 import os
 
@@ -80,6 +81,11 @@ def clearBox(event, instance, insName):
 	# print(event)
 
 
+def browseFile():
+	filename=filedialog.askopenfilename(filetypes=(("html files", ".htm; .html"),("All files", ".*")))
+	clearBox(None, ent, "Entry")
+	ent.insert(0, filename)
+
 if __name__ == "__main__":
 	Path=""
 	Data=""
@@ -100,7 +106,7 @@ if __name__ == "__main__":
 	hhlbl1=Label(frmTop, text="CalcAtt", font=("Helvetica", 18, "bold"))
 	hhlbl1.grid(row=0, column=4, rowspan=2, columnspan=2, sticky=W)
 
-	lbl=Label(frmTop, text="Bill HTML File Location: ")
+	lbl=Button(frmTop, text="Bill HTML File Browse:", command=browseFile)
 	ent=Entry(frmTop, bd=3, width=55, )
 	ent.bind("<Button-1>", lambda event: clearBox(event, ent, "Entry"))
 	ent.insert(0, "Type in the full pathname of bill html file.  e.g. E:\\att\\bill.htm")
