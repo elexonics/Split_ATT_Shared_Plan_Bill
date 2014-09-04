@@ -34,7 +34,7 @@ def calc():
 			txt.insert(INSERT, out)
 		txt.insert(INSERT, "\n")
 
-	global Path
+	global Path, billDetail
 	Path=ent.get()
 	if not os.path.exists(os.path.dirname(Path)):
 		txt.delete(1.0, END)
@@ -44,7 +44,7 @@ def calc():
 		txt.insert(1.0, "Provide with the data usage first!\nWaiting for commands...")
 	else:
 		txt.delete(1.0, END)
-		billDetail=BillDetailer(Path, Data)
+		
 		billDetail.findBillAndUsageForEach()
 		billDetail.splitBill()
 		billDetail.printMessage(redirectedPrint)
@@ -82,13 +82,14 @@ def clearBox(event, instance, insName):
 
 
 def browseFile():
-	filename=filedialog.askopenfilename(filetypes=(("html files", ".htm; .html"),("All files", ".*")))
+	filename=filedialog.askopenfilename(filetypes=(("Text file", ".txt"),("All files", ".*")))
 	clearBox(None, ent, "Entry")
 	ent.insert(0, filename)
 
 if __name__ == "__main__":
 	Path=""
 	Data=""
+	billDetail=BillDetailer(Path, Data)
 
 	root=Tk()
 	root.iconbitmap("hedgehogle.ico")
@@ -102,16 +103,20 @@ if __name__ == "__main__":
 
 	hhGIF=PhotoImage(file="hedgehogle.gif")
 	hhlbl0=Label(frmTop, image=hhGIF)
-	hhlbl0.grid(row=0, column=2, rowspan=2, columnspan=2, sticky=E)
+	hhlbl0.grid(row=0, column=1, rowspan=2, columnspan=2, sticky=E)
 	hhlbl1=Label(frmTop, text="CalcAtt", font=("Helvetica", 18, "bold"))
-	hhlbl1.grid(row=0, column=4, rowspan=2, columnspan=2, sticky=W)
+	hhlbl1.grid(row=0, column=3, rowspan=2, columnspan=2, sticky=W)
 
-	lbl=Button(frmTop, text="Bill HTML File Browse:", command=browseFile)
+	
 	ent=Entry(frmTop, bd=3, width=55, )
 	ent.bind("<Button-1>", lambda event: clearBox(event, ent, "Entry"))
-	ent.insert(0, "Type in the full pathname of bill html file.  e.g. E:\\att\\bill.htm")
-	lbl.grid(row=2, column=0, columnspan=2, padx=5)
-	ent.grid(row=2, column=2, columnspan=6, padx=5)
+	ent.insert(0, "Enter here the file to add monthly balance, *.txt.")
+	Btn1=Button(frmTop, text="Save to File:", command=browseFile)
+	Btn2=Button(frmTop, text="Enter Bill", command=browseFile)
+	ent.grid(row=2, column=4, columnspan=4, padx=5)
+	Btn1.grid(row=2, column=1, columnspan=1, padx=5)
+	
+	Btn2.grid(row=2, column=0, columnspan=1, padx=5)
 
 	btn=Button(frmTop, width=15, text="Enter Data Usage", command=newWindowGetText)
 	btn.grid(row=0, column=6, columnspan=2, padx=5, sticky=E)
