@@ -34,20 +34,19 @@ def calc():
 			txt.insert(INSERT, out)
 		txt.insert(INSERT, "\n")
 
-	global Path, billDetail
-	Path=ent.get()
-	if not os.path.exists(os.path.dirname(Path)):
+	path=ent.get()
+	if not os.path.exists(os.path.dirname(path)):
 		txt.delete(1.0, END)
-		txt.insert(1.0, "Provide with a valid bill HTML pathname first!\nWaiting for commands...")
-	elif Data == "":
-		txt.delete(1.0, END)
-		txt.insert(1.0, "Provide with the data usage first!\nWaiting for commands...")
+		txt.insert(1.0, "Provide a valid balance store location.\nWaiting for commands...")
 	else:
 		txt.delete(1.0, END)
-		
-		billDetail.findBillAndUsageForEach()
-		billDetail.splitBill()
-		billDetail.printMessage(redirectedPrint)
+		billDetail.setBalanceStoreLocation(path)
+		if billDetail.checkAllDetailsSet():
+			billDetail.findBillAndUsageForEach()
+			billDetail.splitBill()
+			billDetail.printMessage(redirectedPrint)
+		else:
+			txt.insert(1.0, "Provide the data usage and bill detail first!\nWaiting for commands...")
 
 
 def newWindowGetText(dest):
@@ -67,7 +66,7 @@ def newWindowGetText(dest):
 	newWindow.geometry("300x400")
 	frmTop=Frame(newWindow)
 	frmBottom=Frame(newWindow)
-	frmTop.pack(side=TOP)
+	frmTop.pack(side=TOP)JustMo
 	frmBottom.pack(side=BOTTOM)
 
 	#Note, text must put at bottom, in order to auto-resize correctly
@@ -116,7 +115,7 @@ if __name__ == "__main__":
 	ent.bind("<Button-1>", lambda event: clearBox(event, ent, "Entry"))
 	ent.insert(0, "Enter here the file to add monthly balance, *.txt.") #enter file path entry
 	Btn1=Button(frmTop, text="Save to File:", command=browseFile) #save to file button
-	Btn2=Button(frmTop, text="Enter Bill", command=browseFile) #enter bill button
+	Btn2=Button(frmTop, text="Enter Bill",  lambda: newWindowGetText("Bill")) #enter bill button
 	ent.grid(row=2, column=4, columnspan=4, padx=5)
 	Btn1.grid(row=2, column=1, columnspan=1, padx=5)
 	
