@@ -50,20 +50,23 @@ def calc():
 		billDetail.printMessage(redirectedPrint)
 
 
-def newWindowGetText():
+def newWindowGetText(dest):
 	def quitAndPaste():
-		global Data
-		Data=txt.get(1.0, END)
-		#print(Data)
-		dataUsage.destroy()
+		if dest == "Data":
+			data=txt.get(1.0, END)
+			billDetail.setDataUsage(data)
+		else:
+			bill=txt.get(1.0, END)
+			billDetail.setBillContent(bill)
+		newWindow.destroy()
 
 	#print("new window expected!")
-	dataUsage=Tk()
-	dataUsage.iconbitmap("hedgehogle.ico")
-	dataUsage.title("Data Usage Details")
-	dataUsage.geometry("300x400")
-	frmTop=Frame(dataUsage)
-	frmBottom=Frame(dataUsage)
+	newWindow=Tk()
+	newWindow.iconbitmap("hedgehogle.ico")
+	newWindow.title("Data Usage Details")
+	newWindow.geometry("300x400")
+	frmTop=Frame(newWindow)
+	frmBottom=Frame(newWindow)
 	frmTop.pack(side=TOP)
 	frmBottom.pack(side=BOTTOM)
 
@@ -86,10 +89,11 @@ def browseFile():
 	clearBox(None, ent, "Entry")
 	ent.insert(0, filename)
 
+
+
 if __name__ == "__main__":
-	Path=""
-	Data=""
-	billDetail=BillDetailer(Path, Data)
+
+	billDetail=BillDetailer() #billDetailer object from calcAtt.py
 
 	root=Tk()
 	root.iconbitmap("hedgehogle.ico")
@@ -102,31 +106,30 @@ if __name__ == "__main__":
 	frmBottom.pack(side=BOTTOM)
 
 	hhGIF=PhotoImage(file="hedgehogle.gif")
-	hhlbl0=Label(frmTop, image=hhGIF)
+	hhlbl0=Label(frmTop, image=hhGIF) #hedgehog icon
 	hhlbl0.grid(row=0, column=1, rowspan=2, columnspan=2, sticky=E)
-	hhlbl1=Label(frmTop, text="CalcAtt", font=("Helvetica", 18, "bold"))
+	hhlbl1=Label(frmTop, text="CalcAtt", font=("Helvetica", 18, "bold")) #calcatt
 	hhlbl1.grid(row=0, column=3, rowspan=2, columnspan=2, sticky=W)
 
 	
 	ent=Entry(frmTop, bd=3, width=55, )
 	ent.bind("<Button-1>", lambda event: clearBox(event, ent, "Entry"))
-	ent.insert(0, "Enter here the file to add monthly balance, *.txt.")
-	Btn1=Button(frmTop, text="Save to File:", command=browseFile)
-	Btn2=Button(frmTop, text="Enter Bill", command=browseFile)
+	ent.insert(0, "Enter here the file to add monthly balance, *.txt.") #enter file path entry
+	Btn1=Button(frmTop, text="Save to File:", command=browseFile) #save to file button
+	Btn2=Button(frmTop, text="Enter Bill", command=browseFile) #enter bill button
 	ent.grid(row=2, column=4, columnspan=4, padx=5)
 	Btn1.grid(row=2, column=1, columnspan=1, padx=5)
 	
 	Btn2.grid(row=2, column=0, columnspan=1, padx=5)
 
-	btn=Button(frmTop, width=15, text="Enter Data Usage", command=newWindowGetText)
+	btn=Button(frmTop, width=15, text="Enter Data Usage", lambda: newWindowGetText("Data")) #enter data usage
 	btn.grid(row=0, column=6, columnspan=2, padx=5, sticky=E)
-
-	btn=Button(frmTop, width=15, text="Calc & Split Bill", command=calc)
+	btn=Button(frmTop, width=15, text="Calc & Split Bill", command=calc) #calc&split bill
 	btn.grid(row=1, column=6, columnspan=2, padx=5, sticky=E)
 
 	
 
-	txt=Text(frmBottom, bg="#000000", fg="#01DF01", bd=8)
+	txt=Text(frmBottom, bg="#000000", fg="#01DF01", bd=8) #text box for msgs
 	txt.insert(1.0, "Waiting for commands...")
 	txt.pack(fill=BOTH)
 

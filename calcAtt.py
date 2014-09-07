@@ -49,26 +49,40 @@ import os.path
 import re
 
 class BillDetailer:
-	def __init__(self, billFilePathName, dataUsage, path=os.getcwd()):
-		self.path=path
-		self.dataUsage=re.sub('[-]', ' ', dataUsage)
-		with open(billFilePathName, "r", encoding="utf-8") as self.billPage:
-			self.billContent=self.billPage.read()
-			self.billContent=self.billContent.lower()
+	def __init__(self, path=os.getcwd()):
 		self.dataBase={} #{[expense, data, dataExtraExpense]:number}
-		self.phoneBook={'512 468 5514':'A',
-						'512 468 6959':'B',
-						'512 496 3468':'C',
-						'512 694 7091':'D',
-						'512 826 6324':'E',
-						'512 865 8134':'F',
-						'512 913 2195':'G',
+		self.phoneBook={'512 468 5514':'5514',
+						'512 468 6959':'6959',
+						'512 496 3468':'3468',
+						'512 694 7091':'7091',
+						'512 826 6324':'6324',
+						'512 865 8134':'8134',
+						'512 913 2195':'2195',
 						'512 923 2219':'Owner',
-						'512 954 7686':'H',
-						'512 954 7693':'I',
+						'512 954 7686':'7686',
+						'512 954 7693':'7693',
 						'Owner':'512 923 2219'}
 		self.totalMember=len(self.phoneBook)-1
 		self.extraDataTotal=0
+		self.dataUsage=""
+		self.billContent=""
+
+	def setDataUsage(self, dataUsage):
+		self.dataUsage=re.sub('[-]', ' ', dataUsage)
+
+	def setBillContent(self, billContent):
+		# with open(billFilePathName, "r", encoding="utf-8") as self.billPage:
+		# 	self.billContent=self.billPage.read()
+		# 	self.billContent=self.billContent.lower()
+		self.billContent=billContent
+
+	def setBalanceStoreLocation(self, storeLocation):
+		self.storeLocation=storeLocation
+
+	def checkAllDetailsSet(self):
+		if (not self.dataUsage) and (not self.billContent):
+			return True
+		else return false
 
 	def findBillAndUsageForEach(self):
 		#find bill detail for each
