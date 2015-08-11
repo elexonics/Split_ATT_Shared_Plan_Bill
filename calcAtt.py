@@ -29,20 +29,9 @@
 # If there exists any over usage, will lead to extra fees, works as follows,
 # 	Data over usage: fees applied to the owners, need to split with actual over-user
 #   Other over usage & extra service: 
-# 	  1) if applied to individual, counts on him/herself
-# -->>2) if applied to owner, need calc manually (split method unkown)
+# 	  1) if applied to individual, counts towards him/herself's total
+# -->>2) if applied to owner, need calc manually
 
-
-#  Dev Plan
-#  Based on currnt bill statements online, the bill split strategy is as above.
-#  Bill details is available online in html format.
-#  1. Input is from one html bill detail, and one pdf data usage detail;
-#     html is auto-processed, pdf needs manually select and paste.
-#  2. Calculation is done using above strategy;
-#  3. Output is decided to be a text msg content.
-# 
-#  Future plan
-#  Auto retreive and pre-process input html pdf, auto send bill text to members.
 
 #! python3
 import os.path
@@ -50,7 +39,7 @@ import re
 
 class BillDetailer:
 	def __init__(self, path=os.getcwd()):
-		self.dataBase={} #{[expense, data, dataExtraExpense]:number}
+		self.dataBase={} #{number:[expense, data, dataExtraExpense]}
 		self.phoneBook={'5124685514':'5514',
 						'5124686959':'6959',
 						'5124963468':'3468',
@@ -60,72 +49,65 @@ class BillDetailer:
 						'5129132195':'2195',
 						'5129232219':'Owner',
 						'5129547686':'7686',
-						'5129547693':'7693',
-						'Owner':'5129232219'}
+						'5129547693':'7693'}
+		self.ownerNumber='5129232219'
 		self.totalMember=len(self.phoneBook)-1
 		self.extraDataTotal=0
 		self.dataUsage=""
 		self.billContent=""
 
 	def setDataUsage(self, dataUsage):
-		self.dataUsage=re.sub('[-() ]', '', dataUsage)
+		self.dataUsage=re.sub('[-() ,]', '', dataUsage)
 
 	def setBillContent(self, billContent):
-		self.billContent=re.sub('[-() ]', '', billContent)
+		self.billContent=re.sub('[-() ,]', '', billContent)
 
 	def setBalanceStoreLocation(self, storeLocation):
 		self.storeLocation=storeLocation
 
 	def checkAllDetailsSet(self):
-		if (not self.dataUsage) and (not self.billContent):
+		if self.dataUsage and self.billContent:
 			return True
 		else:
 			return False
 
 	def findBillAndUsageForEach(self):
 		#find bill detail for each
-		startPoint=0
-		for x in range(10):
-			startNumber=self.billContent.find("total for", startPoint)
-			startExpense=self.billContent.find("$", startNumber)
-			endPoint=self.billContent.find("<", startExpense)
-			number=self.billContent[startNumber+10:startNumber+22]
-			number=re.sub('[\n\t]', '', number)
-			number=re.sub('[-]', ' ', number) #number stored as string
-			expense=float(self.billContent[startExpense+1:endPoint])
-			startPoint=startNumber+1
+		for number in self.phoneBook:
+			numberStartPos=0
+			numberStartPos=self.billContent.find(number, numberStartPos)
+			expenseStartPos=self.billContent.find("$", numberStartPos)
+			endPos=self.billContent.find(".", expenseStartPos)+2
+			expense=float(self.billContent[expenseStartPos+1:endPos+1])
 			self.dataBase[number]=[expense]
-
 		#find usage detail for each
-		startPoint=0
 		self.extraDataTotal=0
-		for eachNumber in self.dataBase:
-			startNumber=self.dataUsage.find(eachNumber, startPoint)
-			endPoint=self.dataUsage.find("\n", startNumber)
-			data=self.dataUsage[startNumber+13:endPoint]
-			data=re.findall(r"\d+", data)
-			data=int("".join(data))
+		for number in self.dataBase:
+			startPos=0
+			startPos=self.dataUsage.find(number, startPos)
+			endPos=self.dataUsage.find("\n", startPos)
+			data=int(self.dataUsage[startPos+10:endPos+1])
 			if data>1024:
 				self.extraDataTotal+=data
-			self.dataBase[eachNumber].append(data)
+			self.dataBase[number].append(data)
 
 	def splitBill(self):
-		dataExtraExpense=self.dataBase[self.phoneBook['Owner']][0]-104.54
-		for eachNumber in self.dataBase:
+		dataExtraExpenseTotal=self.dataBase[self.ownerNumber][0]-104.54
+		for number in self.dataBase:
 			if self.extraDataTotal > 0:
-				extraData=self.dataBase[eachNumber][1]-1024
+				extraData=self.dataBase[number][1]-1024
 				if extraData<0: extraData=0
-				self.dataBase[eachNumber].append(dataExtraExpense*extraData/float(self.extraDataTotal))
+				self.dataBase[number].append(dataExtraExpenseTotal*extraData/float(self.extraDataTotal))
 			else:
-				self.dataBase[eachNumber].append(0)
-			if eachNumber == self.phoneBook['Owner']:
-				self.dataBase[eachNumber].append(self.dataBase[eachNumber][2]+27.905)
+				self.dataBase[number].append(0)
+			if number == self.ownerNumber:
+				self.dataBase[number].append(self.dataBase[number][2]+27.905)
 			else:
-				self.dataBase[eachNumber].append(self.dataBase[eachNumber][0]+self.dataBase[eachNumber][2]+8.515)
+				self.dataBase[number].append(self.dataBase[number][0]+self.dataBase[number][2]+8.515)
 
 	def printMessage(self, display=print, index=3):
 		#print("index=",index)
-		for eachNumber in self.dataBase:
-			display(self.phoneBook[eachNumber],"'s balance:",self.dataBase[eachNumber][index])
+		for number in self.dataBase:
+			display(self.phoneBook[number],"'s balance:",round(self.dataBase[number][index],3))
 
 

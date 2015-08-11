@@ -51,7 +51,7 @@ def calc():
 
 def newWindowGetText(dest):
 	def pasteAndQuit():
-		if dest == 0:
+		if dest == 1:
 			data=txt.get(1.0, END)
 			billDetail.setDataUsage(data)
 		else:
@@ -84,7 +84,7 @@ def clearBox(instance, insName):
 
 def browseFile():
 	filename=filedialog.askopenfilename(filetypes=(("Text file", ".txt"),("All files", ".*")))
-	clearBox(None, ent1, "Entry")
+	clearBox(ent1, "Entry")
 	ent1.insert(0, filename)
 
 
