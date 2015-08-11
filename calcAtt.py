@@ -44,37 +44,34 @@
 #  Future plan
 #  Auto retreive and pre-process input html pdf, auto send bill text to members.
 
-
+#! python3
 import os.path
 import re
 
 class BillDetailer:
 	def __init__(self, path=os.getcwd()):
 		self.dataBase={} #{[expense, data, dataExtraExpense]:number}
-		self.phoneBook={'512 468 5514':'5514',
-						'512 468 6959':'6959',
-						'512 496 3468':'3468',
-						'512 694 7091':'7091',
-						'512 826 6324':'6324',
-						'512 865 8134':'8134',
-						'512 913 2195':'2195',
-						'512 923 2219':'Owner',
-						'512 954 7686':'7686',
-						'512 954 7693':'7693',
-						'Owner':'512 923 2219'}
+		self.phoneBook={'5124685514':'5514',
+						'5124686959':'6959',
+						'5124963468':'3468',
+						'5126947091':'7091',
+						'5128266324':'6324',
+						'5128658134':'8134',
+						'5129132195':'2195',
+						'5129232219':'Owner',
+						'5129547686':'7686',
+						'5129547693':'7693',
+						'Owner':'5129232219'}
 		self.totalMember=len(self.phoneBook)-1
 		self.extraDataTotal=0
 		self.dataUsage=""
 		self.billContent=""
 
 	def setDataUsage(self, dataUsage):
-		self.dataUsage=re.sub('[-]', ' ', dataUsage)
+		self.dataUsage=re.sub('[-() ]', '', dataUsage)
 
 	def setBillContent(self, billContent):
-		# with open(billFilePathName, "r", encoding="utf-8") as self.billPage:
-		# 	self.billContent=self.billPage.read()
-		# 	self.billContent=self.billContent.lower()
-		self.billContent=billContent
+		self.billContent=re.sub('[-() ]', '', billContent)
 
 	def setBalanceStoreLocation(self, storeLocation):
 		self.storeLocation=storeLocation
@@ -82,7 +79,8 @@ class BillDetailer:
 	def checkAllDetailsSet(self):
 		if (not self.dataUsage) and (not self.billContent):
 			return True
-		else return false
+		else:
+			return False
 
 	def findBillAndUsageForEach(self):
 		#find bill detail for each
@@ -130,24 +128,4 @@ class BillDetailer:
 		for eachNumber in self.dataBase:
 			display(self.phoneBook[eachNumber],"'s balance:",self.dataBase[eachNumber][index])
 
-
-
-
-if __name__ == "__main__":
-	billFilePathName="E:\\att\\bill.htm"
-	dataUsage="512 468-5514 1,082\n\
-				512 468-6959 176\n\
-				512 496-3468 1,755\n\
-				512 694-7091 1,272\n\
-				512 826-6324 2,274\n\
-				512 865-8134 657\n\
-				512 913-2195 1,122\n\
-				512 923-2219 319\n\
-				512 954-7686 103\n\
-				512 954-7693 85\n\
-				This is just test data"
-	billDetail=BillDetailer(billFilePathName, dataUsage)
-	billDetail.findBillAndUsageForEach()
-	billDetail.splitBill()
-	billDetail.printMessage()
 

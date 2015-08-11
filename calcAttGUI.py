@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-
+#! python3
 
 from tkinter import *
 from tkinter import filedialog
@@ -34,7 +34,7 @@ def calc():
 			txt.insert(INSERT, out)
 		txt.insert(INSERT, "\n")
 
-	path=ent.get()
+	path=ent1.get()
 	if not os.path.exists(os.path.dirname(path)):
 		txt.delete(1.0, END)
 		txt.insert(1.0, "Provide a valid balance store location.\nWaiting for commands...")
@@ -50,8 +50,8 @@ def calc():
 
 
 def newWindowGetText(dest):
-	def quitAndPaste():
-		if dest == "Data":
+	def pasteAndQuit():
+		if dest == 0:
 			data=txt.get(1.0, END)
 			billDetail.setDataUsage(data)
 		else:
@@ -62,31 +62,30 @@ def newWindowGetText(dest):
 	#print("new window expected!")
 	newWindow=Tk()
 	newWindow.iconbitmap("hedgehogle.ico")
-	newWindow.title("Data Usage Details")
+	newWindow.title("Data Usage") if dest == 1 else newWindow.title("Bill Details")
 	newWindow.geometry("300x400")
 	frmTop=Frame(newWindow)
 	frmBottom=Frame(newWindow)
-	frmTop.pack(side=TOP)JustMo
+	frmTop.pack(side=TOP)
 	frmBottom.pack(side=BOTTOM)
 
 	#Note, text must put at bottom, in order to auto-resize correctly
 	txt=Text(frmBottom, bg="#000000", fg="#01DF01", bd=8)
-	txt.bind("<Button-1>", lambda event: clearBox(event, txt, "Text"))
-	txt.insert(INSERT, "Copy the data usage HERE.")
+	txt.bind("<Button-1>", lambda event: clearBox(txt, "Text"))
+	txt.insert(INSERT, "Paste data usage HERE.") if dest == 1 else txt.insert(INSERT, "Paste bill details HERE.")
 	txt.pack(fill=X)
-	btn=Button(frmTop, width=20, text="Save and Close", command=quitAndPaste)
+	btn=Button(frmTop, width=20, text="Save and Close", command=pasteAndQuit)
 	btn.pack(fill=BOTH)
 
 
-def clearBox(event, instance, insName):
+def clearBox(instance, insName):
 	instance.delete(0 if insName == "Entry" else 1.0, END)
-	# print(event)
 
 
 def browseFile():
 	filename=filedialog.askopenfilename(filetypes=(("Text file", ".txt"),("All files", ".*")))
-	clearBox(None, ent, "Entry")
-	ent.insert(0, filename)
+	clearBox(None, ent1, "Entry")
+	ent1.insert(0, filename)
 
 
 
@@ -94,9 +93,11 @@ if __name__ == "__main__":
 
 	billDetail=BillDetailer() #billDetailer object from calcAtt.py
 
+
+	#layout and button registering
 	root=Tk()
 	root.iconbitmap("hedgehogle.ico")
-	root.title("CalcAtt")
+	root.title("Split AT&T")
 	root.geometry("502x353")
 
 	frmTop=Frame(root)
@@ -104,32 +105,35 @@ if __name__ == "__main__":
 	frmTop.pack(side=TOP)
 	frmBottom.pack(side=BOTTOM)
 
-	hhGIF=PhotoImage(file="hedgehogle.gif")
-	hhlbl0=Label(frmTop, image=hhGIF) #hedgehog icon
-	hhlbl0.grid(row=0, column=1, rowspan=2, columnspan=2, sticky=E)
-	hhlbl1=Label(frmTop, text="CalcAtt", font=("Helvetica", 18, "bold")) #calcatt
-	hhlbl1.grid(row=0, column=3, rowspan=2, columnspan=2, sticky=W)
+	#icon and heading
+	iconName=PhotoImage(file="hedgehogle.gif")
+	lbl0=Label(frmTop, image=iconName) #hedgehog icon
+	lbl0.grid(row=0, column=1, rowspan=2, columnspan=2, sticky=E)
+	lbl1=Label(frmTop, text="Split AT&T", font=("Helvetica", 18, "bold")) #heading
+	lbl1.grid(row=0, column=3, rowspan=2, columnspan=2, sticky=W)
 
-	
-	ent=Entry(frmTop, bd=3, width=55, )
-	ent.bind("<Button-1>", lambda event: clearBox(event, ent, "Entry"))
-	ent.insert(0, "Enter here the file to add monthly balance, *.txt.") #enter file path entry
-	Btn1=Button(frmTop, text="Save to File:", command=browseFile) #save to file button
-	Btn2=Button(frmTop, text="Enter Bill",  lambda: newWindowGetText("Bill")) #enter bill button
-	ent.grid(row=2, column=4, columnspan=4, padx=5)
-	Btn1.grid(row=2, column=1, columnspan=1, padx=5)
-	
-	Btn2.grid(row=2, column=0, columnspan=1, padx=5)
+	#Paste Data Usage button, Paste Billing Details Button
+	btn1=Button(frmTop, width=15, text="Paste Billing Details", command=lambda dest = 0 : newWindowGetText(dest))
+	btn1.grid(row=0, column=6, columnspan=2, padx=5, sticky=E)
+	btn2=Button(frmTop, width=15, text="Paste Data Usage", command=lambda dest = 1 : newWindowGetText(dest))
+	btn2.grid(row=1, column=6, columnspan=2, padx=5, sticky=E)
 
-	btn=Button(frmTop, width=15, text="Enter Data Usage", lambda: newWindowGetText("Data")) #enter data usage
-	btn.grid(row=0, column=6, columnspan=2, padx=5, sticky=E)
-	btn=Button(frmTop, width=15, text="Calc & Split Bill", command=calc) #calc&split bill
-	btn.grid(row=1, column=6, columnspan=2, padx=5, sticky=E)
+	#Split Bill button, Save to File button and File Path entry box
+	btn3=Button(frmTop, text="Split Bill", command=calc) #do the calculation
+	btn3.grid(row=2, column=0, columnspan=1, padx=5)
 
-	
+	ent1=Entry(frmTop, bd=3, width=55)
+	ent1.bind("<Button-1>", lambda event: clearBox(ent1, "Entry"))
+	ent1.insert(0, "Save balance sheet to file as *.txt") #enter file path entry
+	btn4=Button(frmTop, text="Save to File:", command=browseFile) #save to file button
+	ent1.grid(row=2, column=4, columnspan=4, padx=5)
+	btn4.grid(row=2, column=1, columnspan=1, padx=5)
 
+
+	#console text box
 	txt=Text(frmBottom, bg="#000000", fg="#01DF01", bd=8) #text box for msgs
 	txt.insert(1.0, "Waiting for commands...")
 	txt.pack(fill=BOTH)
 
+	#start
 	root.mainloop()
