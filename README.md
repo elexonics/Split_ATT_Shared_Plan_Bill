@@ -10,6 +10,7 @@ How to use:
 4. Split your bill by clicking the button "Split Bill".  
 5. Save your splitted bill to a file if you like.  
 
+Note: when there are additional data package fees or other extra fees, the owner will be benefit a little bit from the tax payment due to some simplification in calculation.  
 
 How to find the numbers:
 Download your pdf monthly statement from your AT&T online account, then usually on the first page there is a section of summary of total expenses for each line in your group.  
