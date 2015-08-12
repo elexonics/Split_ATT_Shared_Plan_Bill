@@ -22,7 +22,7 @@
 
 
 # This is a simple ATT Mobile Share Value Plan 10GB phone bill spliter.
-# The basic pricing is as follows,
+# The basic pricing are as follows,
 # 	Group owner basic is 104.54, including member basic and group addition
 # 	Group member basic is 19.39
 # So the average basic for each is 27.905, the average group addition per person is 8.515
