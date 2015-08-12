@@ -39,7 +39,9 @@ import re
 
 class BillDetailer:
 	def __init__(self, path=os.getcwd()):
-		self.dataBase={} #{number:[expense, data, dataExtraExpense]}
+		"""
+		You can change the actual numbers here
+		"""
 		self.phoneBook={'5124685514':'5514',
 						'5124686959':'6959',
 						'5124963468':'3468',
@@ -50,11 +52,18 @@ class BillDetailer:
 						'5129232219':'Owner',
 						'5129547686':'7686',
 						'5129547693':'7693'}
+		self.totalMember=len(self.phoneBook)
 		self.ownerNumber='5129232219'
-		self.totalMember=len(self.phoneBook)-1
+		self.ownerBasic=104.54
+		self.otherBasic=19.39
+		self.avgBasic=(self.ownerBasic+self.otherBasic*(self.totalMember-1))/self.totalMember
+		self.dataBasicDiff=self.avgBasic-self.otherBasic
+
+
 		self.extraDataTotal=0
 		self.dataUsage=""
 		self.billContent=""
+		self.dataBase={} #{number:[expense, data, dataExtraExpense]}
 
 	def setDataUsage(self, dataUsage):
 		self.dataUsage=re.sub('[-() ,]', '', dataUsage)
@@ -92,7 +101,7 @@ class BillDetailer:
 			self.dataBase[number].append(data)
 
 	def splitBill(self):
-		dataExtraExpenseTotal=self.dataBase[self.ownerNumber][0]-104.54
+		dataExtraExpenseTotal=self.dataBase[self.ownerNumber][0]-self.ownerBasic
 		for number in self.dataBase:
 			if self.extraDataTotal > 0:
 				extraData=self.dataBase[number][1]-1024
@@ -101,9 +110,9 @@ class BillDetailer:
 			else:
 				self.dataBase[number].append(0)
 			if number == self.ownerNumber:
-				self.dataBase[number].append(self.dataBase[number][2]+27.905)
+				self.dataBase[number].append(self.dataBase[number][2]+self.avgBasic)
 			else:
-				self.dataBase[number].append(self.dataBase[number][0]+self.dataBase[number][2]+8.515)
+				self.dataBase[number].append(self.dataBase[number][0]+self.dataBase[number][2]+self.dataBasicDiff)
 
 	def printMessage(self, display=print, index=3):
 		#print("index=",index)
