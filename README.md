@@ -1,7 +1,7 @@
-Split_ATT_Shared_Plan_Bill
+Split_ATT_Shared_Plan_Bill with GUI
 ================
 
-This is a simple ATT Mobile Shared Plan bill spliter
+This is a ATT Mobile Shared Plan bill spliter with GUI
 
 How to use:
 1. Download your pdf monthly statement from your AT&T online account.
