@@ -54,16 +54,18 @@ class BillDetailer:
 						'5129547693':'7693'}
 		self.totalMember=len(self.phoneBook)
 		self.ownerNumber='5129232219'
+		self.totalData=10240
 		self.ownerBasic=104.54
 		self.otherBasic=19.39
 		self.avgBasic=(self.ownerBasic+self.otherBasic*(self.totalMember-1))/self.totalMember
 		self.dataBasicDiff=self.avgBasic-self.otherBasic
+		self.dataPerLine=self.totalData/self.totalMember
 
-
+		self.total=0
 		self.extraDataTotal=0
 		self.dataUsage=""
 		self.billContent=""
-		self.dataBase={} #{number:[expense, data, dataExtraExpense]}
+		self.dataBase={} #{number:[expense, data, dataExtraExpense, total]}
 
 	def setDataUsage(self, dataUsage):
 		self.dataUsage=re.sub('[-() ,]', '', dataUsage)
@@ -88,6 +90,7 @@ class BillDetailer:
 			expenseStartPos=self.billContent.find("$", numberStartPos)
 			endPos=self.billContent.find(".", expenseStartPos)+2
 			expense=float(self.billContent[expenseStartPos+1:endPos+1])
+			self.total += expense
 			self.dataBase[number]=[expense]
 		#find usage detail for each
 		self.extraDataTotal=0
@@ -96,23 +99,27 @@ class BillDetailer:
 			startPos=self.dataUsage.find(number, startPos)
 			endPos=self.dataUsage.find("\n", startPos)
 			data=int(self.dataUsage[startPos+10:endPos+1])
-			if data>1024:
-				self.extraDataTotal+=data
+			if data>self.dataPerLine:
+				self.extraDataTotal+=data-self.dataPerLine
 			self.dataBase[number].append(data)
 
 	def splitBill(self):
 		dataExtraExpenseTotal=self.dataBase[self.ownerNumber][0]-self.ownerBasic
+		totalExpenseExceptOwner=0
 		for number in self.dataBase:
 			if self.extraDataTotal > 0:
-				extraData=self.dataBase[number][1]-1024
+				extraData=self.dataBase[number][1]-self.dataPerLine
 				if extraData<0: extraData=0
 				self.dataBase[number].append(dataExtraExpenseTotal*extraData/float(self.extraDataTotal))
 			else:
 				self.dataBase[number].append(0)
 			if number == self.ownerNumber:
-				self.dataBase[number].append(self.dataBase[number][2]+self.avgBasic)
+				self.dataBase[number].append(0)
 			else:
-				self.dataBase[number].append(self.dataBase[number][0]+self.dataBase[number][2]+self.dataBasicDiff)
+				expense=self.dataBase[number][0]+self.dataBase[number][2]+self.dataBasicDiff
+				totalExpenseExceptOwner+=expense
+				self.dataBase[number].append(expense)
+		self.dataBase[self.ownerNumber][3]=self.total-totalExpenseExceptOwner
 
 	def printMessage(self, display=print, index=3):
 		#print("index=",index)
