@@ -30,9 +30,13 @@ import os
 
 def calc():
 	def redirectedPrint(*output):
+
 		for out in output:
+			outfile.write(str(out))
 			txt.insert(INSERT, out)
+			print(out)
 		txt.insert(INSERT, "\n")
+		outfile.write("\n")
 
 	path=ent1.get()
 	if not os.path.exists(os.path.dirname(path)):
@@ -44,7 +48,9 @@ def calc():
 		if billDetail.checkAllDetailsSet():
 			billDetail.findBillAndUsageForEach()
 			billDetail.splitBill()
+			outfile = open(billDetail.storeLocation, 'w')
 			billDetail.printMessage(redirectedPrint)
+			outfile.close()
 		else:
 			txt.insert(1.0, "Provide the data usage and bill detail first!\nWaiting for commands...")
 
